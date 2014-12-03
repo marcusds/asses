@@ -1,5 +1,8 @@
 <?php
-echo 'Randomizing: ';
+
+// Customization.
+
+$cellIP = '192.168.0.3';
 $santas = array(
 	'name1' => array(
 		'cell' => 123456789,
@@ -23,14 +26,7 @@ $santas = array(
 	),
 );
 
-$selected = array();
-
-shuffle_assoc( $santas );
-
-foreach( $santas as $santa => $values ) {
-	$name = select_rand( $santas, $santa, $values['no'] );
-	$selected[$santa] = $name;
-}
+// End of customization.
 
 function select_rand( $array, $santa, $nos ) {
 	global $selected;
@@ -55,6 +51,17 @@ function shuffle_assoc(&$array) {
 	return true;
 }
 
+echo 'Randomizing: ';
+
+$selected = array();
+
+shuffle_assoc( $santas );
+
+foreach( $santas as $santa => $values ) {
+	$name = select_rand( $santas, $santa, $values['no'] );
+	$selected[$santa] = $name;
+}
+
 echo 'done!<br>';
 
 echo 'Preparing to send:<br>';
@@ -63,7 +70,7 @@ set_time_limit( 0 );
 
 foreach( $selected as $giver => $getter ) {
 	$text = 'Salutations+'. $giver . ',+for+secret+Santa+you+got+' . $getter . '!+This+is+an+automated+message,+no+one+else+knows+what+name+you+have,+so+you+cannot+forget.';
-	$url = 'http://192.168.0.3:9090/sendsms?phone=' . $santas[$giver]['cell'] . '&text=' . $text . '&password=';
+	$url = 'http://' . $cellIP . ':9090/sendsms?phone=' . $santas[$giver]['cell'] . '&text=' . $text . '&password=';
 	if( file_get_contents( $url ) ) {
 		echo $giver . ' - good';
 	} else {

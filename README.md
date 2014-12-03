@@ -7,4 +7,4 @@ You will then need the app SMS Gateway for Android (https://play.google.com/stor
 
 Their may be easier ways to do this, but who cares.
 
-Requirements: PHP5
+Requirements: PHP5 (test on PHP5.4)
