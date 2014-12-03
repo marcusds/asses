@@ -28,6 +28,8 @@ $santas = array(
 
 // End of customization.
 
+header('Content-type: text/plain');
+
 function select_rand( $array, $santa, $nos ) {
 	global $selected;
 	$name = array_rand( $array );
@@ -62,9 +64,9 @@ foreach( $santas as $santa => $values ) {
 	$selected[$santa] = $name;
 }
 
-echo 'done!<br>';
+echo 'done!'."\n";
 
-echo 'Preparing to send:<br>';
+echo 'Preparing to send:'."\n";
 
 set_time_limit( 0 );
 
@@ -76,6 +78,7 @@ foreach( $selected as $giver => $getter ) {
 	} else {
 		echo $giver . ' - FAILED!';
 	}
-	echo "<br>\n";
+	echo "\n";
 }
-echo '</pre>';
+
+echo 'All done!';
