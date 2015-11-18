@@ -2,6 +2,10 @@
 
 // Customization.
 
+$twilio = true;
+$twilioAccountSid = '123';
+$twilioAuthToken = '123';
+$twilioFrom = '123456789';
 $cellIP = '192.168.0.3';
 $santas = array(
 	'name1' => array(
@@ -25,6 +29,7 @@ $santas = array(
 		'no' => array( 'name3' )
 	),
 );
+
 
 // End of customization.
 
@@ -70,13 +75,23 @@ echo 'Preparing to send:'."\n";
 
 set_time_limit( 0 );
 
+if( $twilio === true) {
+	require_once __DIR__ . '/twilio-php/Services/Twilio.php';
+	$twilio = new Services_Twilio( $twilioAccountSid, $twilioAuthToken );
+}
+
 foreach( $selected as $giver => $getter ) {
-	$text = 'Salutations+'. $giver . ',+for+secret+Santa+you+got+' . $getter . '!+This+is+an+automated+message,+no+one+else+knows+what+name+you+have,+so+you+cannot+forget.';
-	$url = 'http://' . $cellIP . ':9090/sendsms?phone=' . $santas[$giver]['cell'] . '&text=' . $text . '&password=';
-	if( file_get_contents( $url ) ) {
-		echo $giver . ' - good';
+	$text = 'Salutations '. $giver . ', for secret Santa you got ' . $getter . '! This is an automated message, no one else knows what name you have, so you cannot forget.';
+	
+	if( $twilio === true) {
+		$sms = $twilio->account->messages->sendMessage( $twilioFrom, $number, $message );
 	} else {
-		echo $giver . ' - FAILED!';
+		$url = 'http://' . $cellIP . ':9090/sendsms?phone=' . $santas[$giver]['cell'] . '&text=' . urlencode($text) . '&password=';
+		if( file_get_contents( $url ) ) {
+			echo $giver . ' - good';
+		} else {
+			echo $giver . ' - FAILED!';
+		}
 	}
 	echo "\n";
 }
