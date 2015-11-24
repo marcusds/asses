@@ -2,11 +2,21 @@
 
 // Customization.
 
-$twilio = true;
-$twilioAccountSid = '123';
-$twilioAuthToken = '123';
-$twilioFrom = '123456789';
-$cellIP = false;
+// Twilio
+$twilio = false;
+$twilioAccountSid = '';
+$twilioAuthToken = '';
+$twilioFrom = ''; // Phone number
+
+// Plivo
+$plivo = false;
+$plivoID = '';
+$plivioToken = '';
+$plivoFrom = ''; // Phone number
+
+// Cell API
+$cellIP = false; // IP address of phone, or false
+
 $santas = array(
 	'name1' => array(
 		'cell' => 123456789,
@@ -85,13 +95,29 @@ set_time_limit(0);
 if($twilio === true) {
 	require_once __DIR__ . '/twilio-php-master/Services/Twilio.php';
 	$twilio = new Services_Twilio($twilioAccountSid, $twilioAuthToken);
+} else if ($plivo === true) {
+	    require_once 'plivo.php';
+
+		$plivo = new RestAPI($plivoID, $plivoToken);
 }
 
+$salutations = [
+	'Salutations',
+	'Hola',
+	'Greetings',
+];
+
 foreach($selected as $giver => $getter) {
-	$text = 'Salutations ' . $giver . ', for secret Santa you got ' . $getter . '! This is an automated message, no one else knows what name you have, so you cannot forget.';
-	
+	$text = $salutations[array_rand($salutations)] . ' ' . $giver . ', for secret Santa you got ' . $getter . '! This is an automated message, no one else knows what name you have so you cannot forget. - Automated Secret Santa Enabling System';
 	if($twilio !== false) {
-		$sms = $twilio->account->messages->sendMessage($twilioFrom, $$santas[$giver]['cell'], $text);
+		$sms = $twilio->account->messages->sendMessage($twilioFrom, $santas[$giver]['cell'], $text);
+	} else if($plivo !== false) {
+		$response = $plivo->send_message(array(
+			'src' => $plivoFrom,
+			'dst' => $santas[$giver]['cell'],
+			'text' => $text,
+			'method' => 'POST'
+		));
 	} else if($cell !== false) {
 		$url = 'http://' . $cellIP . ':9090/sendsms?phone=' . $santas[$giver]['cell'] . '&text=' . urlencode($text) . '&password=';
 		if(file_get_contents($url)) {
