@@ -21,19 +21,19 @@ $santas = array(
 	'name1' => array(
 		'cell' => 123456789,
 		'no' => array( 'name2' )
-	), 
+	),
 	'name2' => array(
 		'cell' => 123456789,
 		'no' => array()
-	), 
+	),
 	'name3' => array(
 		'cell' => 123456789,
 		'no' => array( 'name2', 'name1')
-	), 
+	),
 	'name4' => array(
 		'cell' => 123456789,
 		'no' => array()
-	), 
+	),
 	'name5' => array(
 		'cell' => 123456789,
 		'no' => array( 'name3' )
@@ -48,7 +48,7 @@ header('Content-type: text/plain');
 function shuffle_assoc($list) {
 	if(!is_array($list))
 		return $list;
-	
+
 	$keys = array_keys($list);
 	shuffle($keys);
 	$random = array();
@@ -77,7 +77,7 @@ while($success === false && $attempts < 1000) {
 			}
 		}
 	}
-	
+
 	if(count($tos) > 0 || count($selected) !== count($santas)) {
 		$success = false;
 		continue;
@@ -96,7 +96,7 @@ if($twilio === true) {
 	require_once __DIR__ . '/twilio-php-master/Services/Twilio.php';
 	$twilio = new Services_Twilio($twilioAccountSid, $twilioAuthToken);
 } else if ($plivo === true) {
-	    require_once 'plivo.php';
+	    require_once __DIR__ . '/plivo-php-master/plivo.php';
 
 		$plivo = new RestAPI($plivoID, $plivoToken);
 }
@@ -108,9 +108,14 @@ $salutations = [
 ];
 
 foreach($selected as $giver => $getter) {
-	$text = $salutations[array_rand($salutations)] . ' ' . $giver . ', for secret Santa you got ' . $getter . '! This is an automated message, no one else knows what name you have so you cannot forget. - Automated Secret Santa Enabling System';
+	$text = $salutations[array_rand($salutations)] . ' ' . $giver . ', for gift exchange you got ' . $getter . '! No one else knows what name you have so you cannot forget. - Automated Secret Santa Enabling System';
 	if($twilio !== false) {
 		$sms = $twilio->account->messages->sendMessage($twilioFrom, $santas[$giver]['cell'], $text);
+		if($sms->error_code) {
+			echo 'ERROR';
+			print_r($sms);
+			die;
+		}
 	} else if($plivo !== false) {
 		$response = $plivo->send_message(array(
 			'src' => $plivoFrom,
@@ -118,15 +123,19 @@ foreach($selected as $giver => $getter) {
 			'text' => $text,
 			'method' => 'POST'
 		));
-	} else if($cell !== false) {
+	} else if($cellIP !== false) {
 		$url = 'http://' . $cellIP . ':9090/sendsms?phone=' . $santas[$giver]['cell'] . '&text=' . urlencode($text) . '&password=';
 		if(file_get_contents($url)) {
 			echo $giver . ' - good';
 		} else {
 			echo $giver . ' - FAILED!';
 		}
+		echo "\n";
 	}
-	echo "\n";
+}
+
+if($twilio === false && $plivo === false && $cellIP === false) {
+	print_r($selected);
 }
 
 echo 'All done!';

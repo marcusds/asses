@@ -9,11 +9,7 @@ Requirements: PHP5 (test on PHP5.5)
 
 ## Twilio
 
-To use Twilio to send SMSs, modify the file to set $twilio to true and then set your Twilio creditentals.
-
-## Plivo
-
-To use Plivo to send SMSs, modify the file to set $plivo to true and then set your Plivo creditentals.
+To use Twilio to send SMSs, modify the file to set $twilio to true and then set your Twilio creditentals. (Thanks to Twilio for being awesome and helping me with this.)
 
 ## Local
 
