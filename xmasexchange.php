@@ -109,6 +109,9 @@ $salutations = [
 
 foreach($selected as $giver => $getter) {
 	$text = $salutations[array_rand($salutations)] . ' ' . $giver . ', for gift exchange you got ' . $getter . '! No one else knows what name you have so you cannot forget. - Automated Secret Santa Enabling System';
+	if($santas[$giver]['cell'] === false) {
+		continue;
+	}
 	if($twilio !== false) {
 		$sms = $twilio->account->messages->sendMessage($twilioFrom, $santas[$giver]['cell'], $text);
 		if($sms->error_code) {
